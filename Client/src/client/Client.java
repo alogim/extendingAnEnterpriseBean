@@ -5,6 +5,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import server.DateBeanRemote;
+
 public class Client
 {
   public static void main(String[] args)
