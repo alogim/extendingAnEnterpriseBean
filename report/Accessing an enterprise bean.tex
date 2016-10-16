@@ -158,9 +158,11 @@ In order to compile the sources:
 \begin{enumerate}
     \item Right click on \texttt{Server-ejb} and then click \texttt{Clean and build}.
     \item Now go to the \texttt{Server} project, right click on it, click \texttt{Clean and build} and then \texttt{Run}. This will compile the project, generate the \texttt{.ear} archive, start the WildFly server and deploy it.
-    \item Right click on the \texttt{Client},
-    \texttt{Clean and build} it and then \texttt{Run} it. 
+    \item Right click on the \texttt{Client}, cliuck \texttt{Properties}, \texttt{Libraries} and add both the \texttt{Java EE 7 API Library} and the \texttt{jboss-client.jar} archive. Then
+    \texttt{Clean and build} it and \texttt{Run} it. 
 \end{enumerate}  
+
+Note that libraries should already have been included in the project and NetBeans should automatically detect them.
 
 You should get output similar to the following.
 \begin{lstlisting}[language=ksh]

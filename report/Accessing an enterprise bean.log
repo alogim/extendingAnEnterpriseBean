@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2016.9.25)  16 OCT 2016 23:55
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2016.9.25)  17 OCT 2016 00:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -269,7 +269,7 @@ File: lstlang3.sty 2015/06/04 1.6 listings language file
 ) [5
 
 ]
-Overfull \hbox (54.244pt too wide) in paragraph at lines 198--199
+Overfull \hbox (54.244pt too wide) in paragraph at lines 200--201
 [][][][][][][][][][][][][][][][] 
  []
 
@@ -277,11 +277,11 @@ Overfull \hbox (54.244pt too wide) in paragraph at lines 198--199
 Here is how much of TeX's memory you used:
  3625 strings out of 493013
  51772 string characters out of 6139317
- 187311 words of memory out of 5000000
+ 192496 words of memory out of 5000000
  7134 multiletter control sequences out of 15000+600000
  9015 words of font info for 32 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 40i,6n,40p,572b,1449s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 40i,6n,40p,572b,1558s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texmf-dist/fonts/type1/pu
 blic/amsfonts/cm/cmbx10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/
 cm/cmbx12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><
@@ -290,7 +290,7 @@ f-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-dist/fonts/ty
 pe1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/ams
 fonts/cm/cmti10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt1
 0.pfb>
-Output written on "Accessing an enterprise bean.pdf" (7 pages, 115759 bytes).
+Output written on "Accessing an enterprise bean.pdf" (7 pages, 116234 bytes).
 PDF statistics:
  60 PDF objects out of 1000 (max. 8388607)
  42 compressed objects within 1 object stream
