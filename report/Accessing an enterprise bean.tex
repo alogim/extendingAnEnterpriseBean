@@ -1,0 +1,208 @@
+\documentclass{report}
+
+\usepackage[margin=1.0in]{geometry}
+\usepackage{graphicx}
+\usepackage{color}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\usepackage{listings}
+
+\lstset{
+    frame=single,
+    numbers=left,
+    language=Java,
+    showspaces=false,
+    showtabs=false,
+    breaklines=true,
+    showstringspaces=false,
+    breakatwhitespace=true,
+    commentstyle=\color{pgreen},
+    keywordstyle=\color{pblue},
+    stringstyle=\color{pred},
+    basicstyle=\ttfamily,
+    moredelim=[il][\textcolor{pgrey}]{$ $},
+    moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\begin{document}
+
+\title{Accessing an enterprise bean}
+\author{Michael Dallago}
+
+\maketitle
+
+\chapter{Introduction}
+This project consists of an \textbf{enterprise bean} which exposes methods to get the current time and date and a client which connects to the bean.
+
+The enterprise bean is deployed on the \textit{Wildfly} server.
+
+\chapter{Implementation}
+\section{Bean}
+ The following box shows the source code for the Bean, called \texttt{DateBean} since it is used to get the date.
+
+\begin{lstlisting}
+package server;
+
+import java.util.Date;
+import javax.ejb.Stateless;
+
+@Stateless
+public class DateBean implements DateBeanRemote
+{
+  @Override
+  public String getTimeAndDate()
+  {
+    Date date = new Date();
+    String str = String.format("%1$tT:%1$tL, %1$td %1$tB %1$tY", date);
+    return str;
+  }
+}
+\end{lstlisting}
+
+The \texttt{Bean} is inside package \texttt{server} and, since we use Java-Data utilities, we import the \texttt{java.util.Date} package. This \texttt{bean} is \texttt{Stateless}, that is, it has no member variable and can be destroyed as soon as it is not used anymore, so we import the \texttt{javax.ejb.Stateless}.
+
+The method used to return the date to the client is straightforward. We first get the date on line 12, then we construct a \texttt{String} formatted according to how we want to display the date and the time. In fact, we specify we want the time of the day, followed by a comma, followed b y the number of the day of the month, the name of the month and finally the year.
+
+So, for example, we will get a \texttt{String} such as the following
+\begin{center}
+    \texttt{23:01:43:194, 16 October 2016}
+\end{center}
+
+This \texttt{String} is the return value of the method, that is, it is the value the client gets when it calls this method. 
+
+\section{Client}
+The \texttt{Client} consists of two packages:
+\begin{itemize}
+    \item \texttt{client} package contains the client code, that is, the Java class \texttt{Client.java} code.
+    \item \texttt{server} package contains the remote bean code, that is, the code of the interface exposing the bean method code. 
+\end{itemize}
+
+\begin{lstlisting}
+package client;
+
+import java.util.Properties;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import server.DateBeanRemote;
+
+public class Client
+{
+  public static void main(String[] args)
+  {
+    Properties jndiProps = new Properties();
+    jndiProps.put(Context.INITIAL_CONTEXT_FACTORY,
+                  "org.jboss.naming.remote.client.InitialContextFactory");
+    jndiProps.put(Context.PROVIDER_URL, "http-remoting://127.0.0.1:8080");
+    jndiProps.put(Context.SECURITY_PRINCIPAL, "user");
+    jndiProps.put(Context.SECURITY_CREDENTIALS, "password");
+    jndiProps.put("jboss.naming.client.ejb.context", true);
+
+    try
+    {
+      InitialContext context = new InitialContext(jndiProps);
+      DateBeanRemote myDateBeanRemote = (DateBeanRemote) context.lookup(
+"/Server/Server-ejb/DateBean!server.DateBeanRemote");
+      System.out.println(myDateBeanRemote.getTimeAndDate());
+      System.out.println(myDateBeanRemote.getTimeAndDate());
+    }
+    catch (NamingException ex)
+    {
+      System.out.println(ex.getMessage());
+    }
+  }
+}
+\end{lstlisting}
+
+As we can see in the above box, the \texttt{Main-Class} for the client consists of a single method, the \texttt{main()}.
+
+In the \texttt{main()} we first initialize some properties, used to search and find the bean on the already-running Wildfly server.
+
+In line 16, we specify the host on which the Wildfly server is running (in this case \texttt{localhost}) followed by the port number.
+
+In line 17 and 18 respectively, we define the user name and the corresponding password in order to authenticate on the server.
+
+In line 19 we specify an important property to set if we want to do EJB invocations via the remote-naming project. Since this property is set to true and passed to the \texttt{InitialContext} creation, the remote-naming project internally will do whatever is necessary to setup a \texttt{EJBClientContext}. The InitialContext creation done in line 23 via the remote-naming project has now internally triggered the creation of a \texttt{EJBClientContext} containing a EJBReceiver capable of handling the EJB invocations.
+
+After the creation of the \texttt{InitialContext}, we look up for the \texttt{Bean} in the context. The specified name matches the one returned by the server when the bean is deployed. 
+
+On lines 26 and 27, we simply call the method: since it returns a \texttt{String}, we can print it through the method \texttt{System.out.println()}.
+
+The following is the remote interface code placed inside the \texttt{server} package but on the client side.
+\begin{lstlisting}
+package server;
+
+import javax.ejb.Remote;
+
+@Remote
+public interface DateBeanRemote
+{
+  String getTimeAndDate();
+}
+\end{lstlisting}
+As you can see, it is a Plain Old Java Interface exposing the name and the return value for the \texttt{getTimeAndDate()} server method.
+
+\chapter{Deployment}
+\section{Compile and run on Netbeans}
+Unzip the source code and open Netbeans. Inside the latter, click \texttt{Open Project...} and open both \texttt{Client} and \texttt{Server} projects.
+
+Double click on the \texttt{Server} package (the one with a purple triangle on its left), expand \texttt{Java EE Modules} and double click on \texttt{Server-ejb.jar}. An EJB module project will be opened as well. 
+
+At this time you have all the source code opened in NetBeans, and you can modify it if you want to.
+
+In order to compile the sources:
+\begin{enumerate}
+    \item Right click on \texttt{Server-ejb} and then click \texttt{Clean and build}.
+    \item Now go to the \texttt{Server} project, right click on it, click \texttt{Clean and build} and then \texttt{Run}. This will compile the project, generate the \texttt{.ear} archive, start the WildFly server and deploy it.
+    \item Right click on the \texttt{Client},
+    \texttt{Clean and build} it and then \texttt{Run} it. 
+\end{enumerate}  
+
+You should get output similar to the following.
+\begin{lstlisting}[language=ksh]
+...
+23:43:32,419 INFO  [org.jboss.weld.deployer] (MSC service thread 1-5) WFLYWELD0003: Processing weld deployment Server.ear
+23:43:32,483 INFO  [org.hibernate.validator.internal.util.Version] (MSC service thread 1-5) HV000001: Hibernate Validator 5.2.4.Final
+23:43:32,564 INFO  [org.jboss.weld.deployer] (MSC service thread 1-4) WFLYWELD0003: Processing weld deployment Server-ejb.jar
+23:43:32,567 INFO  [org.jboss.as.ejb3.deployment] (MSC service thread 1-4) WFLYEJB0473: JNDI bindings for session bean named 'DateBean' in deployment unit 'subdeployment "Server-ejb.jar" of deployment "Server.ear"' are as follows:
+
+    java:global/Server/Server-ejb/DateBean!server.DateBeanRemote
+    java:app/Server-ejb/DateBean!server.DateBeanRemote
+    java:module/DateBean!server.DateBeanRemote
+    java:jboss/exported/Server/Server-ejb/DateBean!server.DateBeanRemote
+    java:global/Server/Server-ejb/DateBean
+    java:app/Server-ejb/DateBean
+    java:module/DateBean
+
+23:43:32,612 INFO  [org.jboss.weld.Version] (MSC service thread 1-3) WELD-000900: 2.3.5 (Final)
+...
+\end{lstlisting}
+
+Note that line 10 is partially used to find the bean in the client code. 
+
+When running the client, you should get something like the following:
+\begin{lstlisting}[language=ksh]
+Oct 16, 2016 11:48:04 PM org.xnio.Xnio <clinit>
+INFO: XNIO version 3.4.0.Final
+Oct 16, 2016 11:48:04 PM org.xnio.nio.NioXnio <clinit>
+INFO: XNIO NIO Implementation Version 3.4.0.Final
+Oct 16, 2016 11:48:04 PM org.jboss.remoting3.EndpointImpl <clinit>
+INFO: JBoss Remoting version 4.0.21.Final
+Oct 16, 2016 11:48:05 PM org.jboss.ejb.client.remoting.VersionReceiver handleMessage
+INFO: EJBCLIENT000017: Received server version 2 and marshalling strategies [river]
+Oct 16, 2016 11:48:05 PM org.jboss.ejb.client.remoting.RemotingConnectionEJBReceiver associate
+INFO: EJBCLIENT000013: Successful version handshake completed for receiver context EJBReceiverContext{clientContext=org.jboss.ejb.client.EJBClientContext@1e88b3c, receiver=Remoting connection EJB receiver [connection=Remoting connection <3adb73e3> on endpoint "config-based-naming-client-endpoint" <42d80b78>,channel=jboss.ejb,nodename=localhost]} on channel Channel ID 8df8f850 (outbound) of Remoting connection 589838eb to /127.0.0.1:8080 of endpoint "config-based-naming-client-endpoint" <42d80b78>
+Oct 16, 2016 11:48:05 PM org.jboss.ejb.client.EJBClient <clinit>
+INFO: JBoss EJB Client version 2.1.4.Final
+23:48:05:294, 16 October 2016
+23:48:05:298, 16 October 2016
+\end{lstlisting}
+The most interesting lines are 13 and 14, since there the date is printed.
+
+Note that you need to add a \texttt{user} to your WildFly server, via the \texttt{adduser} utility you can find in the \texttt{\$JBOSS\_HOME/bin} directory.
+
+\end{document}
